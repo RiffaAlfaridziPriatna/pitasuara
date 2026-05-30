@@ -31,6 +31,7 @@ import ResultOverlay from './components/ResultOverlay.tsx';
 import Leaderboard from './components/Leaderboard.tsx';
 import ExerciseSelector from './components/ExerciseSelector.tsx';
 import RanksModal from './components/RanksModal.tsx';
+import LevelUpModal from './components/LevelUpModal.tsx';
 import { motion, AnimatePresence } from 'motion/react';
 import { LogOut, User as UserIcon, Zap, Sparkles, TrendingUp, Globe, Award, Trophy, Flame, Crown, LayoutDashboard, History, Calendar, ArrowRight, BookOpen, Mic, ChevronRight, Lock } from 'lucide-react';
 import { AppUser, ACHIEVEMENTS_LIST, getEligibleAchievements, EXERCISES_LIST } from './types.ts';
@@ -169,6 +170,7 @@ export default function App() {
   const [completedExerciseIds, setCompletedExerciseIds] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'missions'>('dashboard');
   const [showRanksModal, setShowRanksModal] = useState(false);
+  const [levelUpData, setLevelUpData] = useState<{ oldLevel: number; newLevel: number; rank: string } | null>(null);
 
   // Load language preference from local storage on bootstrap
   const [lang, setLang] = useState<'en' | 'id'>(() => {
@@ -372,6 +374,14 @@ export default function App() {
       rank,
       unlockedAchievements: updatedAchievements 
     } : null);
+
+    if (newLevel > user.level) {
+      setLevelUpData({
+        oldLevel: user.level,
+        newLevel: newLevel,
+        rank: rank
+      });
+    }
   };
 
   if (loading) {
@@ -992,6 +1002,15 @@ export default function App() {
             currentXp={user.xp}
             currentLang={lang}
             onClose={() => setShowRanksModal(false)}
+          />
+        )}
+        {levelUpData && (
+          <LevelUpModal
+            oldLevel={levelUpData.oldLevel}
+            newLevel={levelUpData.newLevel}
+            rank={levelUpData.rank}
+            currentLang={lang}
+            onClose={() => setLevelUpData(null)}
           />
         )}
       </AnimatePresence>
