@@ -364,6 +364,7 @@ export default function App() {
 
     setLatestResult({ 
       ...result,
+      exerciseTitle: selectedExercise?.title || 'Speech Exercise',
       newlyUnlockedAchievements: newlyUnlockedDefs
     });
     

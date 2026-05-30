@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Trophy, Star, TrendingUp, Award, Sparkles, Flame, Crown, Check, ChevronRight } from 'lucide-react';
+import { Trophy, Star, TrendingUp, Award, Sparkles, Flame, Crown, Check, ChevronRight, Share2, Twitter, MessageSquare, Copy, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 import { AchievementDef } from '../types';
@@ -90,7 +90,19 @@ const TRANSLATIONS = {
     intonation: "Flow & Rhythm",
     aiFeedback: "AI Coach Feedback",
     xpEarned: "XP Earned",
-    continueProgression: "Continue Progression"
+    continueProgression: "Continue Progression",
+    sharePerformance: "Share Performance",
+    shareAchievement: "Share Badge Milestone",
+    shareStatsTitle: "Share Vocal Results",
+    shareBadgeTitle: "Share Unlocked Badge",
+    shareTextPreview: "POST PREVIEW",
+    sharePrompt: "Salute your score to standard channels:",
+    copyText: "Copy Draft",
+    toastFeedback: "Copied!",
+    nativeShare: "Share via device options",
+    defaultExerciseTitle: "Speech Exercise",
+    shareStatsTemplate: "🗣️ Just completed '{exercise}' speech exercise on PitaSuara! \n\n🎯 Clarity: {clarity}%\n📈 Flow & Rhythm: {intonation}%\n✨ Earned: +{xp} XP\n\nTrain your voice: {url}",
+    shareBadgeTemplate: "🏆 Just unlocked '{badge}' Achievement on PitaSuara! \n\n✨ {desc}\n\nJoin me in vocal training: {url}"
   },
   id: {
     milestoneCompleted: "Pencapaian Terlampaui",
@@ -106,7 +118,19 @@ const TRANSLATIONS = {
     intonation: "Aliran & Ritme",
     aiFeedback: "Evaluasi Pelatih AI",
     xpEarned: "XP Didapatkan",
-    continueProgression: "Lanjutkan Pelatihan"
+    continueProgression: "Lanjutkan Pelatihan",
+    sharePerformance: "Bagikan Hasil",
+    shareAchievement: "Bagikan Lencana",
+    shareStatsTitle: "Bagikan Rapor Vokal",
+    shareBadgeTitle: "Bagikan Lencana Baru",
+    shareTextPreview: "PRATINJAU POSTINGAN",
+    sharePrompt: "Salurkan rapor Anda ke media sosial:",
+    copyText: "Salin Draf",
+    toastFeedback: "Tersalin!",
+    nativeShare: "Bagikan lewat Perangkat",
+    defaultExerciseTitle: "Latihan Wicara",
+    shareStatsTemplate: "🗣️ Baru saja menyelesaikan latihan wicara '{exercise}' di PitaSuara!\n\n🎯 Akurasi Kejelasan: {clarity}%\n📈 Aliran & Ritme: {intonation}%\n✨ Mendapat: +{xp} XP\n\nLatih vokal Anda juga: {url}",
+    shareBadgeTemplate: "🏆 Baru saja membuka pencapaian '{badge}' di PitaSuara!\n\n✨ {desc}\n\nLatih suara Anda sekarang di: {url}"
   }
 };
 
@@ -134,6 +158,7 @@ interface ResultOverlayProps {
     intonationScore: number;
     feedback: string;
     xpEarned: number;
+    exerciseTitle?: string;
   };
   onClose: () => void;
   newlyUnlockedAchievements?: AchievementDef[];
@@ -143,11 +168,100 @@ interface ResultOverlayProps {
 export default function ResultOverlay({ result, onClose, newlyUnlockedAchievements = [], currentLang = 'en' }: ResultOverlayProps) {
   const [currentAchievementIndex, setCurrentAchievementIndex] = useState(0);
   const [showAchievements, setShowAchievements] = useState(newlyUnlockedAchievements.length > 0);
+  const [showShareOptions, setShowShareOptions] = useState(false);
+  const [isSharingAchievement, setIsSharingAchievement] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
   const hasMultiple = newlyUnlockedAchievements.length > 1;
   const currentAchievement = newlyUnlockedAchievements[currentAchievementIndex];
+
+  // Resolve App URL beautifully
+  const appUrl = typeof window !== 'undefined'
+    ? (window.location.origin.includes('localhost') || window.location.origin === 'null'
+      ? 'https://ai.studio/build'
+      : window.location.origin)
+    : 'https://ai.studio/build';
+
+  // Get translated achievement info
+  const getAchievementDetails = (ach: AchievementDef) => {
+    const fallback = { title: ach.title, desc: ach.description };
+    const localeDict = ACHIEVEMENT_INFO[currentLang];
+    if (!localeDict) return fallback;
+    return localeDict[ach.id] || fallback;
+  };
+
+  // Build the text dynamically
+  const buildShareText = () => {
+    if (isSharingAchievement && currentAchievement) {
+      const details = getAchievementDetails(currentAchievement);
+      const template = t.shareBadgeTemplate;
+      return template
+        .replace('{badge}', details.title)
+        .replace('{desc}', details.desc)
+        .replace('{url}', appUrl);
+    } else {
+      const template = t.shareStatsTemplate;
+      const title = result.exerciseTitle || t.defaultExerciseTitle;
+      return template
+        .replace('{exercise}', title)
+        .replace('{clarity}', Math.round(result.clarityScore).toString())
+        .replace('{intonation}', Math.round(result.intonationScore).toString())
+        .replace('{xp}', result.xpEarned.toString())
+        .replace('{url}', appUrl);
+    }
+  };
+
+  const generatedShareText = buildShareText();
+
+  const handleShareToPlatform = (platform: 'tw' | 'wa') => {
+    let shareUrl = '';
+    if (platform === 'tw') {
+      shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(generatedShareText)}`;
+    } else if (platform === 'wa') {
+      shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(generatedShareText)}`;
+    }
+    if (shareUrl) {
+      window.open(shareUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const handleCopyToClipboard = (text: string) => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }).catch(() => {
+          fallbackCopyToClipboard(text);
+        });
+      } else {
+        fallbackCopyToClipboard(text);
+      }
+    } catch (e) {
+      fallbackCopyToClipboard(text);
+    }
+  };
+
+  const fallbackCopyToClipboard = (text: string) => {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Fallback copy failed', err);
+    }
+    document.body.removeChild(textArea);
+  };
 
   // Helper generator for explosion particles
   const getConfettiParticles = () => {
@@ -201,15 +315,6 @@ export default function ResultOverlay({ result, onClose, newlyUnlockedAchievemen
       setShowAchievements(false);
     }
   };
-
-  // Get translated achievement info
-  const getAchievementDetails = (ach: AchievementDef) => {
-    const fallback = { title: ach.title, desc: ach.description };
-    const localeDict = ACHIEVEMENT_INFO[currentLang];
-    if (!localeDict) return fallback;
-    return localeDict[ach.id] || fallback;
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -311,22 +416,33 @@ export default function ResultOverlay({ result, onClose, newlyUnlockedAchievemen
               </div>
 
               {/* Steps */}
-              <div className="pt-2">
+              <div className="pt-2 space-y-3">
                 {hasMultiple && (
-                  <p className="text-xs text-indigo-500 font-bold uppercase tracking-wider mb-4">
+                  <p className="text-xs text-indigo-500 font-bold uppercase tracking-wider mb-2">
                     {t.showing} {currentAchievementIndex + 1} {t.of} {newlyUnlockedAchievements.length} {t.awards}
                   </p>
                 )}
                 
                 <button
                   onClick={handleNextAchievement}
-                  className="w-full py-4 bg-gray-900 hover:bg-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl active:scale-98 cursor-pointer relative overflow-hidden group"
+                  className="w-full py-4 bg-gray-900 hover:bg-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl active:scale-98 cursor-pointer relative overflow-hidden group animate-bounce"
                 >
                   <span className="relative z-10">
                     {currentAchievementIndex + 1 < newlyUnlockedAchievements.length ? t.nextAward : t.collectBadges}
                   </span>
                   <ChevronRight className="w-5 h-5 relative z-10 transition-transform group-hover:translate-x-1" />
                   <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    setIsSharingAchievement(true);
+                    setShowShareOptions(true);
+                  }}
+                  className="w-full py-3 bg-indigo-50/50 hover:bg-indigo-50 text-indigo-600 border border-indigo-100/50 hover:border-indigo-250 rounded-xl font-bold flex items-center justify-center gap-2 text-xs transition-all shadow-sm active:scale-98 cursor-pointer"
+                >
+                  <Share2 className="w-3.5 h-3.5 animate-pulse" />
+                  {t.shareAchievement}
                 </button>
               </div>
             </div>
@@ -369,13 +485,118 @@ export default function ResultOverlay({ result, onClose, newlyUnlockedAchievemen
                   <span className="font-extrabold text-yellow-800">+{result.xpEarned} {t.xpEarned}</span>
                 </div>
 
+                <div className="flex flex-col sm:flex-row gap-3 w-full">
+                  <button
+                    onClick={onClose}
+                    className="flex-1 py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-black transition-all shadow-lg text-sm active:scale-98 cursor-pointer"
+                  >
+                    {t.continueProgression}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsSharingAchievement(false);
+                      setShowShareOptions(true);
+                    }}
+                    className="flex-1 py-4 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 hover:border-gray-300 rounded-2xl font-bold transition-all shadow-sm text-sm active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Share2 className="w-4 h-4 text-indigo-500 animate-pulse" />
+                    {t.sharePerformance}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Social Share Options Sheet/Modal */}
+      <AnimatePresence>
+        {showShareOptions && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-30 rounded-[2.5rem] p-6 flex flex-col justify-between"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-indigo-400">
+                <Share2 className="w-5 h-5 animate-pulse" />
+                <h4 className="font-extrabold text-sm uppercase tracking-wider text-slate-200">
+                  {isSharingAchievement ? t.shareBadgeTitle : t.shareStatsTitle}
+                </h4>
+              </div>
+              <button
+                onClick={() => setShowShareOptions(false)}
+                className="p-1 px-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all font-bold text-xs cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+
+            {/* Post Preview box */}
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-left my-4 overflow-y-auto max-h-[160px] md:max-h-[220px]">
+              <span className="text-[9px] font-black tracking-widest text-[#94A3B8] uppercase block mb-2">
+                {t.shareTextPreview}
+              </span>
+              <p className="text-slate-200 text-xs leading-relaxed font-semibold whitespace-pre-wrap select-all selection:bg-indigo-600 selection:text-white">
+                {generatedShareText}
+              </p>
+            </div>
+
+            {/* Platform Sharing Panel */}
+            <div className="space-y-4">
+              <p className="text-center text-[10px] text-slate-400 font-extrabold tracking-wider uppercase">
+                {t.sharePrompt}
+              </p>
+              <div className="grid grid-cols-3 gap-2">
                 <button
-                  onClick={onClose}
-                  className="w-full py-4 bg-gray-900 text-white rounded-2xl font-bold hover:bg-black transition-all shadow-lg text-sm"
+                  onClick={() => handleShareToPlatform('tw')}
+                  className="py-3 bg-slate-900 hover:bg-slate-850 text-slate-200 hover:text-white border border-slate-800 hover:border-slate-700 rounded-xl font-extrabold text-xs transition-all flex flex-col items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
                 >
-                  {t.continueProgression}
+                  <Twitter className="w-4 h-4 text-sky-400 fill-sky-400" />
+                  <span>X / Twitter</span>
+                </button>
+                <button
+                  onClick={() => handleShareToPlatform('wa')}
+                  className="py-3 bg-slate-900 hover:bg-slate-850 text-slate-200 hover:text-white border border-slate-800 hover:border-slate-700 rounded-xl font-extrabold text-xs transition-all flex flex-col items-center justify-center gap-1.5 active:scale-95 cursor-pointer"
+                >
+                  <MessageSquare className="w-4 h-4 text-emerald-400 fill-emerald-400/20" />
+                  <span>WhatsApp</span>
+                </button>
+                <button
+                  onClick={() => handleCopyToClipboard(generatedShareText)}
+                  className={`py-3 rounded-xl font-extrabold text-xs transition-all flex flex-col items-center justify-center gap-1.5 active:scale-95 cursor-pointer border ${
+                    copied
+                      ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-400'
+                      : 'bg-slate-900 hover:bg-slate-850 text-slate-200 hover:text-white border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  {copied ? (
+                    <Check className="w-4 h-4 stroke-[3]" />
+                  ) : (
+                    <Copy className="w-4 h-4 text-indigo-400" />
+                  )}
+                  <span>{copied ? t.toastFeedback : t.copyText}</span>
                 </button>
               </div>
+
+              {/* Web Share API fallback */}
+              {typeof navigator !== 'undefined' && navigator.share && (
+                <button
+                  onClick={() => {
+                    navigator.share({
+                      title: 'PitaSuara Voice Score',
+                      text: generatedShareText,
+                      url: appUrl
+                    }).catch(err => console.log('Error sharing', err));
+                  }}
+                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>{t.nativeShare}</span>
+                </button>
+              )}
             </div>
           </motion.div>
         )}
