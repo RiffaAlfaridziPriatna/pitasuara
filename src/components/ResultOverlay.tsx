@@ -389,18 +389,18 @@ export default function ResultOverlay({ result, onClose, newlyUnlockedAchievemen
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ repeat: Infinity, duration: 12, ease: "linear" }}
-                  className={`absolute w-32 h-32 rounded-full border-2 border-dashed opacity-30 ${COLOR_MAP[currentAchievement.color].text}`}
+                  className={`absolute w-32 h-32 rounded-full border-2 border-dashed opacity-65 ${COLOR_MAP[currentAchievement.color].text}`}
                 />
 
                 <motion.div
                   initial={{ scale: 0.5, rotate: -30 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: "spring", stiffness: 260, damping: 15, delay: 0.1 }}
-                  className={`relative w-24 h-24 rounded-3xl bg-gradient-to-br ${COLOR_MAP[currentAchievement.color].badge} flex items-center justify-center text-white shadow-xl ring-4 ring-white ${COLOR_MAP[currentAchievement.color].badgeBorder}`}
+                  className="relative w-24 h-24 flex items-center justify-center"
                 >
                   {(() => {
                     const SelectedIcon = ICON_MAP[currentAchievement.iconName] || Award;
-                    return <SelectedIcon className="w-11 h-11 drop-shadow-md animate-pulse" />;
+                    return <SelectedIcon className={`w-14 h-14 ${COLOR_MAP[currentAchievement.color].text} animate-pulse`} />;
                   })()}
                 </motion.div>
               </div>
@@ -425,7 +425,7 @@ export default function ResultOverlay({ result, onClose, newlyUnlockedAchievemen
                 
                 <button
                   onClick={handleNextAchievement}
-                  className="w-full py-4 bg-gray-900 hover:bg-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl active:scale-98 cursor-pointer relative overflow-hidden group animate-bounce"
+                  className="w-full py-4 bg-gray-900 hover:bg-black text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-xl active:scale-98 cursor-pointer relative overflow-hidden group"
                 >
                   <span className="relative z-10">
                     {currentAchievementIndex + 1 < newlyUnlockedAchievements.length ? t.nextAward : t.collectBadges}
