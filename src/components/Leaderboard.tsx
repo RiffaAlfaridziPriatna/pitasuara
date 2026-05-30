@@ -23,6 +23,11 @@ const TRANSLATIONS = {
     totalXp: "Total XP",
     rank: "Rank",
     level: "Level",
+    rankBeginner: "Beginner",
+    rankNovice: "Novice",
+    rankPractitioner: "Practitioner",
+    rankMasterOrator: "Master Orator",
+    rankLegend: "Articulate Legend",
     tips: {
       0: "Keep articulation steady! Focus on deep breathing before saying each word.",
       1: "Speak slowly and focus on pure vowel clarity. Pace is the key to focus.",
@@ -40,6 +45,11 @@ const TRANSLATIONS = {
     totalXp: "Total XP",
     rank: "Peringkat",
     level: "Tingkat",
+    rankBeginner: "Pemula",
+    rankNovice: "Novis",
+    rankPractitioner: "Praktisi",
+    rankMasterOrator: "Orator Ulung",
+    rankLegend: "Legenda Artikulasi",
     tips: {
       0: "Jaga artikulasi tetap stabil! Tarik napas dalam-dalam sebelum mengucapkan setiap kata.",
       1: "Bicaralah perlahan dan fokus pada kejelasan vokal. Ketukan adalah kunci utama fokus.",
@@ -54,6 +64,14 @@ export default function Leaderboard({ users, currentLang = 'en' }: LeaderboardPr
   const [hoveredUserId, setHoveredUserId] = useState<string | null>(null);
 
   const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+
+  const getRankName = (level: number) => {
+    if (level >= 15) return t.rankLegend;
+    if (level >= 10) return t.rankMasterOrator;
+    if (level >= 5) return t.rankPractitioner;
+    if (level >= 2) return t.rankNovice;
+    return t.rankBeginner;
+  };
 
   const getTooltipTip = (level: number) => {
     if (level <= 1) return t.tips[0];
@@ -123,7 +141,7 @@ export default function Leaderboard({ users, currentLang = 'en' }: LeaderboardPr
                         <p className="font-bold text-sm text-gray-100">{user.displayName}</p>
                         <p className="text-xs text-yellow-400 font-bold flex items-center gap-1.5 mt-0.5">
                           {index === 0 ? <Crown className="w-3.5 h-3.5 text-yellow-400" /> : <Flame className="w-3.5 h-3.5 text-orange-400" />}
-                          {t.rank} {index + 1} • {user.rank || 'Vocal Novice'}
+                          {t.rank} {index + 1} • {getRankName(currentLevel)}
                         </p>
                       </div>
 
@@ -179,7 +197,7 @@ export default function Leaderboard({ users, currentLang = 'en' }: LeaderboardPr
 
               <div className="flex-grow min-w-0">
                 <p className="font-bold text-gray-800 truncate">{user.displayName}</p>
-                <p className="text-xs font-medium text-indigo-500 uppercase tracking-tighter truncate">{t.level} {user.level || 1} • {user.rank || 'Beginner'}</p>
+                <p className="text-xs font-medium text-indigo-500 uppercase tracking-tighter truncate">{t.level} {currentLevel} • {getRankName(currentLevel)}</p>
               </div>
 
               <div className="text-right flex-shrink-0">

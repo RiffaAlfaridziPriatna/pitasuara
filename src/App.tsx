@@ -585,9 +585,8 @@ export default function App() {
       {/* Header */}
       <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-             <div className="bg-indigo-600 w-10 h-10 rounded-xl flex items-center justify-center text-white font-black italic text-xl shadow-lg shadow-indigo-200">P</div>
-             <h1 className="text-2xl font-black tracking-tighter italic">{t.loading}</h1>
+          <div className="flex items-center">
+             <h1 className="text-2xl font-black tracking-tighter italic text-indigo-600">{t.loading}</h1>
           </div>
 
           <div className="flex items-center gap-6">
