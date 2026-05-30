@@ -50,8 +50,8 @@ const RANKS_DATA = [
     minXp: 1600,
     color: 'from-emerald-500 to-teal-600 text-emerald-600 fill-emerald-600 ring-emerald-100 bg-emerald-50',
     iconName: 'Award',
-    descEn: 'Fluent and confident speaker. Unlocks the prestigious Achievements Shelf to store master vocal records.',
-    descId: 'Pembicara yang lancar dan percaya diri. Membuka Galeri Pencapaian eksklusif untuk melacak progres vokal Anda.'
+    descEn: 'Fluent and confident speaker. Expresses complex thoughts with dynamic control over pronunciation, pacing, and tone.',
+    descId: 'Pembicara yang lancar dan percaya diri. Mengekspresikan pemikiran kompleks dengan kontrol dinamis atas pelafalan, tempo, dan nada.'
   },
   {
     id: 'orator',
@@ -78,7 +78,7 @@ const RANKS_DATA = [
 const MODAL_TRANSLATIONS = {
   en: {
     title: "Vocal Rank Progression",
-    subtitle: "Explore your speaker standing milestones. Achieve Practitioner (Level 5+) to unlock the esteemed Achievements Shelf and curate your vocal legacy.",
+    subtitle: "Embark on a structured journey to vocal mastery. Track your milestones from a beginner speaker up to an articulate legend.",
     levelBracket: "Level Bracket",
     requiredXp: "Required XP",
     activeRankBadge: "Current Rank",
@@ -87,13 +87,11 @@ const MODAL_TRANSLATIONS = {
     rankNovice: "Novice",
     rankPractitioner: "Practitioner",
     rankMasterOrator: "Master Orator",
-    rankLegend: "Articulate Legend",
-    achievementUnlockTip: "Achievements Shelf Unlock",
-    unlockedAtThisRank: "UNLOCKED AT Level 5+"
+    rankLegend: "Articulate Legend"
   },
   id: {
     title: "Tingkatan Vokal & Rapor",
-    subtitle: "Jelajahi setiap milestone kompetensi berbicara Anda. Raih peringkat Praktisi (Level 5+) untuk membuka Galeri Pencapaian Eksklusif dan mengabadikan bakat vokal terbaik Anda.",
+    subtitle: "Mulai langkah terstruktur Anda menuju kefasihan berbicara. Pantau pencapaian Anda dari pembicara pemula hingga legenda artikulasi.",
     levelBracket: "Rentang Level",
     requiredXp: "XP Minimum",
     activeRankBadge: "Pangkat Aktif",
@@ -102,9 +100,7 @@ const MODAL_TRANSLATIONS = {
     rankNovice: "Novis",
     rankPractitioner: "Praktisi",
     rankMasterOrator: "Orator Ulung",
-    rankLegend: "Legenda Artikulasi",
-    achievementUnlockTip: "Akses Galeri Pencapaian",
-    unlockedAtThisRank: "TERBUKA DI Level 5+"
+    rankLegend: "Legenda Artikulasi"
   }
 };
 
@@ -186,11 +182,6 @@ export default function RanksModal({ currentLevel, currentXp, currentLang, onClo
                       <h4 className="font-extrabold text-lg text-gray-900 leading-none">
                         {rankTitle}
                       </h4>
-                      {rank.id === 'practitioner' && (
-                        <span className="text-[9px] font-extrabold text-emerald-750 bg-emerald-50 border border-emerald-100 px-2.5 py-0.5 rounded-md uppercase">
-                          {t.unlockedAtThisRank}
-                        </span>
-                      )}
                     </div>
                     <p className="text-xs text-gray-500 font-medium leading-relaxed max-w-md">
                       {description}
