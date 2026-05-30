@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { X, Sparkles, TrendingUp, Award, Crown, Check } from 'lucide-react';
+import { X, Sparkles, TrendingUp, Award, Crown, Check, Trophy } from 'lucide-react';
 
 interface RanksModalProps {
   currentLevel: number;
@@ -18,19 +18,30 @@ const ICON_MAP = {
   Sparkles,
   TrendingUp,
   Award,
+  Trophy,
   Crown
 };
 
 const RANKS_DATA = [
   {
-    id: 'novice',
-    titleKey: 'rankNovice',
-    levels: '1 - 4',
+    id: 'beginner',
+    titleKey: 'rankBeginner',
+    levels: '1',
     minXp: 0,
-    color: 'from-blue-500 to-indigo-600 text-blue-500 fill-blue-500 ring-blue-100 bg-blue-50',
+    color: 'from-slate-400 to-slate-500 text-slate-500 fill-slate-500 ring-slate-100 bg-slate-50',
     iconName: 'Sparkles',
     descEn: 'The starting step of your speech journey. Focus on basic speech patterns and pronunciation rules.',
     descId: 'Langkah awal perjalanan wicara Anda. Fokus pada pola bahasa dasar dan aturan pelafalan sederhana.'
+  },
+  {
+    id: 'novice',
+    titleKey: 'rankNovice',
+    levels: '2 - 4',
+    minXp: 100,
+    color: 'from-blue-500 to-indigo-600 text-blue-500 fill-blue-500 ring-blue-100 bg-blue-50',
+    iconName: 'TrendingUp',
+    descEn: 'Build stable breathing and speech pacing. Transition from simple utterances to structured complete phrases.',
+    descId: 'Mulai membangun stabilitas napas dan tempo berbicara. Beralih dari ucapan sederhana ke frasa terstruktur.'
   },
   {
     id: 'practitioner',
@@ -38,7 +49,7 @@ const RANKS_DATA = [
     levels: '5 - 9',
     minXp: 1600,
     color: 'from-emerald-500 to-teal-600 text-emerald-600 fill-emerald-600 ring-emerald-100 bg-emerald-50',
-    iconName: 'TrendingUp',
+    iconName: 'Award',
     descEn: 'Fluent and confident speaker. Unlocks the prestigious Achievements Shelf to store master vocal records.',
     descId: 'Pembicara yang lancar dan percaya diri. Membuka Galeri Pencapaian eksklusif untuk melacak progres vokal Anda.'
   },
@@ -48,7 +59,7 @@ const RANKS_DATA = [
     levels: '10 - 14',
     minXp: 8100,
     color: 'from-purple-500 to-indigo-700 text-purple-600 fill-purple-600 ring-purple-100 bg-purple-50',
-    iconName: 'Award',
+    iconName: 'Trophy',
     descEn: 'Master of flow, rhythm, and cadence. Able to deliver long paragraphs with high vocal clarity and pacing.',
     descId: 'Ahli aliran kalimat, ritme, dan pembawaan kata. Mampu mengucapkan kalimat panjang dengan kejelasan vokal murni.'
   },
@@ -67,11 +78,12 @@ const RANKS_DATA = [
 const MODAL_TRANSLATIONS = {
   en: {
     title: "Vocal Rank Progression",
-    subtitle: "Syllabi & standing milestones. Reach Level 5 to unlock the historical Achievement Shelf.",
+    subtitle: "Explore your speaker standing milestones. Achieve Practitioner (Level 5+) to unlock the esteemed Achievements Shelf and curate your vocal legacy.",
     levelBracket: "Level Bracket",
     requiredXp: "Required XP",
     activeRankBadge: "Current Rank",
     closeBtn: "Got it, back to training",
+    rankBeginner: "Beginner",
     rankNovice: "Novice",
     rankPractitioner: "Practitioner",
     rankMasterOrator: "Master Orator",
@@ -81,12 +93,13 @@ const MODAL_TRANSLATIONS = {
   },
   id: {
     title: "Tingkatan Vokal & Rapor",
-    subtitle: "Milestone kompetensi Anda. Capai Level 5 untuk membuka pintu Galeri Pencapaian eksklusif.",
+    subtitle: "Jelajahi setiap milestone kompetensi berbicara Anda. Raih peringkat Praktisi (Level 5+) untuk membuka Galeri Pencapaian Eksklusif dan mengabadikan bakat vokal terbaik Anda.",
     levelBracket: "Rentang Level",
     requiredXp: "XP Minimum",
     activeRankBadge: "Pangkat Aktif",
     closeBtn: "Kembali berlatih",
-    rankNovice: "Pemula",
+    rankBeginner: "Pemula",
+    rankNovice: "Novis",
     rankPractitioner: "Praktisi",
     rankMasterOrator: "Orator Ulung",
     rankLegend: "Legenda Artikulasi",
@@ -99,10 +112,11 @@ export default function RanksModal({ currentLevel, currentXp, currentLang, onClo
   const t = MODAL_TRANSLATIONS[currentLang] || MODAL_TRANSLATIONS.en;
 
   // Resolve user's active rank ID
-  let activeRankId = 'novice';
+  let activeRankId = 'beginner';
   if (currentLevel >= 15) activeRankId = 'legend';
   else if (currentLevel >= 10) activeRankId = 'orator';
   else if (currentLevel >= 5) activeRankId = 'practitioner';
+  else if (currentLevel >= 2) activeRankId = 'novice';
 
   return (
     <motion.div
@@ -152,7 +166,7 @@ export default function RanksModal({ currentLevel, currentXp, currentLang, onClo
                 className={`flex flex-col md:flex-row items-start md:items-center justify-between p-5 rounded-2xl border transition-all gap-4 relative ${
                   isActive
                     ? `bg-indigo-50/45 border-indigo-200/80 ring-4 ring-indigo-50`
-                    : 'bg-[#FDFDFF] border-gray-150/60 hover:bg-white/80'
+                    : 'bg-[#FDFDFF] border-gray-200/60 hover:bg-white/80'
                 }`}
               >
                 {isActive && (

@@ -78,13 +78,14 @@ const APP_TRANSLATIONS = {
     locked: "Locked",
     coachingTip: "Coaching Tip",
     levelUpTitle: "Level Up",
+    rankBeginner: "Beginner",
     rankNovice: "Novice",
     rankPractitioner: "Practitioner",
     rankMasterOrator: "Master Orator",
     rankLegend: "Articulate Legend",
     achievementInfo: {
       "first_steps": { title: "Vocal Explorer", desc: "Complete your very first speech training exercise" },
-      "rank_novice": { title: "Vocal Novice", desc: "Begin your journey as a Novice speaker (Level 1+)" },
+      "rank_novice": { title: "Vocal Novice", desc: "Begin your journey as a Novice speaker (Level 2+)" },
       "vocal_maestro": { title: "Vocal Maestro", desc: "Complete 3 speech exercises to build strong vocal momentum" },
       "rank_practitioner": { title: "Rising Practitioner", desc: "Reach Level 5+ to achieve the Practitioner rank" },
       "silver_tongue": { title: "Silver Tongue", desc: "Gain 85% or higher in vocal clarity and pronunciation" },
@@ -137,13 +138,14 @@ const APP_TRANSLATIONS = {
     locked: "Terkunci",
     coachingTip: "Saran Pelatih",
     levelUpTitle: "Tingkat Baru",
-    rankNovice: "Pemula",
+    rankBeginner: "Pemula",
+    rankNovice: "Novis",
     rankPractitioner: "Praktisi",
     rankMasterOrator: "Orator Ulung",
     rankLegend: "Legenda Artikulasi",
     achievementInfo: {
       "first_steps": { title: "Penjelajah Vokal", desc: "Selesaikan latihan wicara pertama Anda untuk memulai" },
-      "rank_novice": { title: "Pemula Vokal", desc: "Mulai perjalanan Anda sebagai pembicara Pemula (Tingkat 1+)" },
+      "rank_novice": { title: "Pemula Vokal", desc: "Mulai perjalanan Anda sebagai pembicara Novis (Tingkat 2+)" },
       "vocal_maestro": { title: "Maestro Vokal", desc: "Selesaikan 3 latihan wicara untuk mengasah konsistensi awal" },
       "rank_practitioner": { title: "Praktisi Berbakat", desc: "Mencapai Tingkat 5+ untuk meraih peringkat Praktisi" },
       "silver_tongue": { title: "Lidah Perak", desc: "Raih tingkat kejelasan artikulasi di atas 85% atau lebih" },
@@ -286,7 +288,7 @@ export default function App() {
           email: fUser.email || '',
           xp: 0,
           level: 1,
-          rank: lang === 'id' ? t.rankNovice : 'Novice'
+          rank: lang === 'id' ? t.rankBeginner : 'Beginner'
         };
         await setDoc(userRef, {
           ...newUser,
@@ -314,10 +316,11 @@ export default function App() {
     const newLevel = Math.floor(Math.sqrt(newXP / 100)) + 1;
     
     // Auto translate rank logic safely
-    let rank = t.rankNovice;
+    let rank = t.rankBeginner;
     if (newLevel >= 15) rank = t.rankLegend;
     else if (newLevel >= 10) rank = t.rankMasterOrator;
     else if (newLevel >= 5) rank = t.rankPractitioner;
+    else if (newLevel >= 2) rank = t.rankNovice;
 
     const oldUnlocked = user.unlockedAchievements || [];
     const eligibleIds = getEligibleAchievements({
@@ -857,13 +860,15 @@ export default function App() {
                           <div className="flex items-center gap-4">
                              <div className="bg-white/10 p-3 rounded-xl group-hover:bg-white/15 transition-all shadow-inner">
                                 {user.level >= 15 ? (
-                                    <Crown className="w-5 h-5 text-rose-300 drop-shadow-[0_0_8px_rgba(244,114,182,0.4)]" />
+                                    <Crown className="w-5 h-5 text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.4)]" />
                                  ) : user.level >= 10 ? (
-                                    <Award className="w-5 h-5 text-purple-300 drop-shadow-[0_0_8px_rgba(196,181,253,0.4)]" />
+                                    <Trophy className="w-5 h-5 text-purple-300 drop-shadow-[0_0_8px_rgba(196,181,253,0.4)]" />
                                  ) : user.level >= 5 ? (
-                                    <TrendingUp className="w-5 h-5 text-emerald-300 drop-shadow-[0_0_8px_rgba(110,231,183,0.4)]" />
+                                    <Award className="w-5 h-5 text-emerald-300 drop-shadow-[0_0_8px_rgba(110,231,183,0.4)]" />
+                                 ) : user.level >= 2 ? (
+                                    <TrendingUp className="w-5 h-5 text-blue-300 drop-shadow-[0_0_8px_rgba(147,197,253,0.4)]" />
                                  ) : (
-                                    <Sparkles className="w-5 h-5 text-blue-300 drop-shadow-[0_0_8px_rgba(147,197,253,0.4)]" />
+                                    <Sparkles className="w-5 h-5 text-slate-300 drop-shadow-[0_0_8px_rgba(203,213,225,0.4)]" />
                                  )}
                              </div>
                              <div>

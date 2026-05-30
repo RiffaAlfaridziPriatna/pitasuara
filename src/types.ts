@@ -33,7 +33,7 @@ export const ACHIEVEMENTS_LIST: AchievementDef[] = [
   {
     id: 'rank_novice',
     title: 'Vocal Novice',
-    description: 'Begin your journey as a Novice speaker (Level 1+)',
+    description: 'Begin your journey as a Novice speaker (Level 2+)',
     iconName: 'Zap',
     color: 'emerald'
   },
@@ -109,8 +109,8 @@ export function getEligibleAchievements(params: {
     eligible.push('first_steps');
   }
 
-  // 2. Novice Rank (Level 1+)
-  if (params.level >= 1) {
+  // 2. Novice Rank (Level 2+)
+  if (params.level >= 2) {
     eligible.push('rank_novice');
   }
 
